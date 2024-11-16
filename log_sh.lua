@@ -56,8 +56,8 @@ for i, v in ipairs(LogLevels) do
     LevelLookup[i] = i
 end
 
-local Log = setmetatable(
-    {
+
+local Log = setmetatable({
         level = GetConvarInt("debug", 0) == 1 and "debug" or "info",
         line = function(f)
             f = f or 1
@@ -134,4 +134,3 @@ if GetCurrentResourceName() == "da_log" then
         end
     end, false)
 end
-

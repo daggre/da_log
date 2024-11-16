@@ -96,7 +96,10 @@ cd resources
 git clone git@github.com:daggre/da_log.git
 ```
 Add `ensure da_log` to your preferred resource config. (Default: server.cfg)
-
+If you want to enable debug logging by default, set a read only convar debug to 1 in server.cfg.
+```
+setr debug 1
+```
 ## Support
 - Discord: daggre
 - Discord Server: [da_dev](https://discord.com/invite/JgteBpXGaA)
