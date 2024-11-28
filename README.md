@@ -42,7 +42,7 @@ Output:
 ```
 
 ### Format
-Format will apply the print formatting that is run internally to a string.
+Format will apply the print formatting and output data types to a string.
 Example:
 ```lua
 print(log.format({a="This",b="is",c="a",d="table"}))
