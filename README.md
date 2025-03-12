@@ -1,108 +1,181 @@
 # Daggre Actual's Log Levels (da_log)
+
 ## Version & Status
 v0.1
 
 ## Description
-da_log is a library that provides logging via log levels for RedM. The library
-provides six log levels, which can be used to filter the output of the logging
-in the console, both client and server side. Level defaults can be set for LIVE
-and DEV environments, and the log level for each resource can be set at
-runtime. The logger also uses pretty printing to make the output more readable,
-printing table values recursively when possible.
+`da_log` is a lightweight and powerful logging library for RedM that provides consistent, level-based logging across client and server-side scripts. It features pretty-printing of complex data structures, colored output, and runtime configuration of log levels.
 
-### Levels
-- Error
-- Warn
-- Info
-- Verbose
-- Debug
-- Spam
+The library is designed to help developers debug their code more effectively by providing different levels of verbosity that can be adjusted based on the environment (development vs. production).
 
-### Level
-Allows setting the log level for a resource in code.
+## Features
+- Six customizable log levels with colored output
+- Pretty-printing of complex data structures (including tables, vectors)
+- Runtime configuration of log levels per resource
+- Source line information for easier debugging
+- Environment-aware default configuration (DEV vs LIVE)
+- Shared client and server-side implementation
 
-Example:
+## Log Levels
+
+The library provides six log levels in order of increasing verbosity:
+
+| Level | Description | Default Color | Use Case |
+|-------|-------------|--------------|----------|
+| `error` | Critical errors | Red | Application crashes, unrecoverable errors |
+| `warn` | Warnings | Yellow | Deprecated features, potential issues |
+| `info` | General information | White | Important events, user actions |
+| `verbose` | Detailed information | White | Step-by-step operations |
+| `debug` | Debugging information | Yellow | Values of variables, function calls |
+| `spam` | High-frequency debug | Magenta | Loop iterations, frequent events |
+
+The default log level is `info` in production environments and `debug` when the `debug` convar is set to `1`.
+
+## API Reference
+
+### Log Functions
+
+Each log level has a corresponding function:
+
 ```lua
-log.level = "debug"
-log.spam("This message will be hidden")
-log.level = "spam"
-log.spam("This message will be output")
+log.error(...) -- Critical errors that require immediate attention
+log.warn(...)  -- Warnings that don't stop execution but indicate potential issues
+log.info(...)  -- General information about application operation
+log.verbose(...) -- More detailed information
+log.debug(...) -- Information useful for debugging
+log.spam(...)  -- Extremely verbose information for fine-grained debugging
 ```
 
-### Line
-Line will print the short source debug info for the current code line.
+All log functions accept any number of arguments of any type. Complex types like tables are pretty-printed.
 
-Example:
+### Log Level Configuration
+
 ```lua
-log.warn("Should not reach this line of code: " .. log.line())
-```
-Output:
-```
-[         script:test] WARN: Should not reach this line of code: @test/test_log.lua:30
+-- Get current log level
+local currentLevel = log.level
+
+-- Set log level in code
+log.level = "debug"  -- Can be "error", "warn", "info", "verbose", "debug", or "spam"
+log.level = 5        -- Can also use numeric values (1-6)
 ```
 
-### Format
-Format will apply the print formatting and output data types to a string.
-Example:
+### Utility Functions
+
+#### log.line([stackLevel])
+Returns the current source file and line number for debugging.
+
 ```lua
-print(log.format({a="This",b="is",c="a",d="table"}))
+log.warn("Unexpected value encountered: " .. log.line())
+-- Output: WARN: Unexpected value encountered: @resources/my_script/client.lua:42
 ```
 
-Output:
-```
-[         script:test] format test:     {
-[         script:test]   [c] = "a",
-[         script:test]   [d] = "table",
-[         script:test]   [a] = "This",
-[         script:test]   [b] = "is",
-[         script:test] }
+Parameters:
+- `stackLevel` (optional): Integer indicating which stack frame to examine (default: 1)
+
+#### log.format(...)
+Formats values for output, converting complex types to readable strings.
+
+```lua
+local formattedString = log.format({name = "Player", health = 100})
+print(formattedString)
 ```
 
-Info is the default log level. If the debug convar is set in the server.cfg
-then the Debug level will be the default.
+## Runtime Configuration
 
-## Usage
-Import the logger into your script through the fxmanifest:
+### Console Commands
+
+The following console commands can be used to configure logging at runtime:
+
+```
+log set <resource_name> <log_level>  -- Set log level for a specific resource
+log set all <log_level>              -- Set log level for all resources
+log get <resource_name>              -- Get current log level for a resource
+log list                             -- List all available log levels
+```
+
+### Server Configuration
+
+To enable debug logging by default, add the following to your `server.cfg`:
+
+```
+setr debug 1
+```
+
+## Integration Guide
+
+### Basic Integration
+
+1. Import the logger in your `fxmanifest.lua`:
+
 ```lua
 shared_scripts {
     '@da_log/log_sh.lua',
 }
 ```
 
-Use the logger in your script:
+2. Use the logger in your code:
+
 ```lua
-log.error('This is an error message')
-log.warn('This is a warning message')
-log.info('This is an info message')
-log.verbose('This is a verbose message')
-log.debug('This is a debug message')
-log.spam('This is a spam message')
+-- Simple logging
+log.info("Player connected:", playerName)
+
+-- Debug information with tables
+log.debug("Player state:", {
+    id = player.id,
+    health = player.health,
+    position = player.position
+})
+
+-- Error reporting
+log.error("Failed to load resource:", resourceName, "Error:", errorMessage)
 ```
 
-Set the log level for a resource at runtime:
-```
-log set <resource_name> <log_level>
+### Environment-Specific Configuration
+
+
+If not using convar debug, you can set up the specific environment level:
+
+```lua
+-- Production setup
+if not IsDebug() then
+    log.level = "info"  -- Only show info and above in production
+end
+
+-- Development setup
+if IsDebug() then
+    log.level = "debug"  -- Show more detailed logs in development
+end
 ```
 
-Get the log level for a resource at runtime:
-```
-log get <resource_name>
-```
+### Best Practices
+
+- Use appropriate log levels based on message importance
+- Include contextual information in log messages
+- Use tables to log complex data structures
+- Add log.line() to error messages to pinpoint locations
+- Use string formatting for cleaner log messages:
+  ```lua
+  log.info(("Player %s connected from %s"):format(playerName, playerIP))
+  ```
 
 ## Installation
-Clone the **da_log** repository into your servers resources folder:
+
+Clone the **da_log** repository into your server's resources folder:
 ```bash
 cd resources
-git clone git@github.com:daggre/da_log.git
+git clone https://github.com/daggre/da_log.git
 ```
-Add `ensure da_log` to your preferred resource config. (Default: server.cfg)
-If you want to enable debug logging by default, set a read only convar debug to 1 in server.cfg.
-```
-setr debug 1
-```
-## Support
+
+Add `ensure da_log` to your preferred resource config (usually `server.cfg`).
+
+## Support and Contribution
+
 - Discord: daggre
 - Discord Server: [da_dev](https://discord.com/invite/JgteBpXGaA)
+- GitHub: [da_log](https://github.com/daggre/da_log)
 
 ## Authors and Acknowledgment
 - daggre_actual
+
+## License
+[MIT License](LICENSE)
