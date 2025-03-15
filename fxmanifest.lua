@@ -9,4 +9,5 @@ lua54 'yes'
 
 shared_scripts {
     'log_sh.lua',
+    'cmd_sh.lua',
 }
