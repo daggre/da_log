@@ -168,11 +168,10 @@ git clone https://github.com/daggre/da_log.git
 
 Add `ensure da_log` to your preferred resource config (usually `server.cfg`).
 
-## Support and Contribution
+## Support
 
-- Discord: daggre
-- Discord Server: [da_dev](https://discord.com/invite/JgteBpXGaA)
-- GitHub: [da_log](https://github.com/daggre/da_log)
+Questions, bug reports, or help getting set up — the **[da.dev Discord](https://discord.com/invite/JgteBpXGaA)**
+is the fastest way to reach me. GitHub issues on this repo work too.
 
 ## Authors and Acknowledgment
 - daggre_actual
