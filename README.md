@@ -176,3 +176,7 @@ Add `ensure da_log` to your preferred resource config (usually `server.cfg`).
 
 ## Authors and Acknowledgment
 - daggre_actual
+
+## License
+
+[MIT](LICENSE) © daggre_actual
